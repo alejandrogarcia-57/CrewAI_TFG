@@ -60,14 +60,6 @@ ordenar_num = Crew(
 )
 
 print("### Iniciando proceso ###")
-
-@app.route('/')
-def ejecutar_crew():
-    # Ejecutamos el proceso de los agentes
-    resultado = ordenar_num.kickoff()
+resultado = ordenar_num.kickoff()
     
-    # Retornamos el resultado envuelto en HTML básico
-    return f"<h1>Resultado del Agente:</h1><p>{resultado}</p>"
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+   

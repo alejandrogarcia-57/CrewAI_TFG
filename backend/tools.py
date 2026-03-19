@@ -1,66 +1,53 @@
-from crewai.tools import tool
+
 import random
 import string
+from crewai.tools import tool
 
-@tool("generador_sopa_letras")
-def generador_sopa_letras(palabras: list) -> str:
-    """
-    Genera una cuadrícula de 10x10 solo con letras. Recibe una lista de palabras
-    y introduce las 6 palabras que has recibido como argumento en horizontal. 
-    Es importante que todas las palabras sean introducidas sin excepción.
 
-    """
-    import random
-    import string
-    import ast
-
- 
-    if isinstance(palabras, str):
-        try:
-            palabras = ast.literal_eval(palabras)
-        except:
-            palabras = palabras.replace('[','').replace(']','').replace('"','').split(',')
-
-    tamano = 10
-  
-    letras_limpias = string.ascii_uppercase 
-    matriz = [[random.choice(letras_limpias) for _ in range(tamano)] for _ in range(tamano)]
+@tool("crear_cuadricula")
+def crear_cuadricula(palabras: str) -> str:
+    """ 
+    Has de separar las palabras que hay dentro de la string y 
+    generar una cuadricula donde esten estas palabras dentro 
     
-    for palabra in palabras:
-        p = str(palabra).strip().upper().replace(" ", "")[:10]
-        if not p: continue
-        
-        fila = random.randint(0, tamano - 1)
-        col_inicio = random.randint(0, tamano - len(p))
-        matriz[fila][col_inicio:col_inicio + len(p)] = list(p)
+    """
     
-    resultado = "\n".join([" ".join(fila) for fila in matriz])
-    return resultado
+    def clean(s):
+        replacements = {"Á": "A", "É": "E", "Í": "I", "Ó": "O", "Ú": "U"}
+        res = s.strip().upper()
+        for k, v in replacements.items(): res = res.replace(k, v)
+        return res
 
+    words = [clean(w) for w in palabras.split(",") if 0 < len(clean(w)) <= 8]
 
-@tool("generador_escondite")
-def generador_escondite(letra) -> str:
-    """
-    Quiero que introduzcas entre 10 y 12 veces la letra escogida por el 
-    agente generador de letras
+    if not words:
+        return "Error: No se proporcionaron palabras válidas de menos de 8 letras."
 
-    """
-
-    import random
-    import string
-
-    tamano = 10
-    letras_limpias = string.ascii_uppercase
-    matriz = [[random.choice(letras_limpias) for _ in range(tamano)] for _ in range(tamano)]
-    letra = letra.strip().upper()[0]
-
-    fila = random.randint(0,tamano - 1)
-    col = random.randint(0,tamano - 1)
-    matriz[fila][col] = letra
-
-    return matriz
+    size = 10
+    grid = [['' for _ in range(size)] for _ in range(size)]
 
     
+    for word in words:
+        placed = False
+        intentos = 0
+        while not placed and intentos < 20:
+            row = random.randint(0, size - 1)
+            col_start = random.randint(0, size - len(word))
+            
+            
+            if all(grid[row][col_start + i] == '' for i in range(len(word))):
+                for i in range(len(word)):
+                    grid[row][col_start + i] = word[i]
+                placed = True
+            intentos += 1
+
+    
+    for r in range(size):
+        for c in range(size):
+            if grid[r][c] == '':
+                grid[r][c] = random.choice(string.ascii_uppercase)
+
+    return "\n".join([" ".join(row) for row in grid])
 
 
 
