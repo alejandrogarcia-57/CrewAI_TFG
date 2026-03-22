@@ -1,8 +1,10 @@
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.flow.flow import Flow, listen, start, router
+from crewai_tools import FileReadTool
 from langchain_ollama import OllamaLLM
 import os
-from pydantic import BaseModel
+import json
+from pydantic import BaseModel, ValidationError
 from typing import List
 import tools
 
@@ -17,6 +19,10 @@ os.environ["OPENAI_API_KEY"] = "NA"
 gemma3 = LLM(model="ollama/gemma3:4b", base_url="http://localhost:11434", api_key="NA")
 # llama3_1 = LLM(model="ollama/llama3.1", base_url="http://localhost:11434", api_key="NA")
 # llama3_2 = LLM(model="ollama/llama3.2", base_url="http://localhost:11434", api_key="NA")
+
+
+#-----AGENTES-----
+
 
 
 generador_palabras = Agent(
@@ -38,19 +44,24 @@ creador_filas = Agent(
 )
 
 formateador_json = Agent(
-    role='Especialista en Datos JSON',
-    goal='Convertir la lista de palabras en un formato JSON estructurado',
-    backstory='Eres un experto en serialización de datos. Tu salida debe ser JSON puro.',
+    role="Experto en estructuras tipo JSON",
+    goal="Tomar las palabras generadas y usar la herramienta para guardarlas en JSON",
+    backstory="Eres un experto en serialización de datos a formato JSON.",
     llm=gemma3,
-    verbose=True    
+    tools=[tools.serializador_sopa],
+    verbose=True
 )
+
+
+#-----TAREAS-----
 
 
 tarea_gen = Task(
     name='Tarea de generación de palabras',
     description='Has de generar 6 palabras relacionadas con la temática "{tema}" que esten completas, que sean palabras ' \
     'con caracteres normales y que tengan menos de 7 letras',
-    expected_output="Palabra1, Palabra2, Palabra3, Palabra4, Palabra5, Palabra6" ,
+    expected_output="Palabra1, Palabra2, Palabra3, Palabra4, Palabra5, Palabra6",
+    output_file="/output/words.json",
     agent=generador_palabras,
 )
 
@@ -68,23 +79,47 @@ tarea_cuadricula = Task(
     max_retries=4,
 )
 
-tarea_json = Task(
-    description="Toma las palabras de la tarea anterior y crea un JSON",
-    expected_output="Un objeto JSON válido.",
+tarea_serializar = Task(
+    name='Serialización de datos',
+    description=(
+        "Toma las palabras de la tarea_gen y el tema '{tema}'. "
+        "Usa la herramienta 'serializador_sopa' pasando ambos parámetros. "
+        "No intentes responder con texto, solo usa la herramienta."
+    ),
+    expected_output="Confirmación de que el JSON ha sido guardado.",
     agent=formateador_json,
-    output_json=SolSopa,
-    output_file="/output/words.json",
-    context=[tarea_gen],       
+    context=[tarea_gen]
 )
 
-
-
 sopa_letras = Crew(
-    agents=[generador_palabras, creador_filas, formateador_json],
-    tasks=[tarea_gen, tarea_cuadricula, tarea_json],
+    agents=[generador_palabras, formateador_json, creador_filas],
+    tasks=[tarea_gen, tarea_serializar ,tarea_cuadricula],
     process=Process.sequential,
     verbose=True,   
 )
 
 print("### Iniciando proceso ###")
-resultado = sopa_letras.kickoff(inputs={'tema': 'informática'})
+resultado = sopa_letras.kickoff(inputs={'tema': 'seres de la naturaleza'})
+
+datos_netos = resultado.json_dict
+print("Datos convertidos a JSON")
+print(datos_netos)
+
+try:
+
+    with open("output/words.json", "r") as f:
+        datos_finales = SolSopa(**json.load(f))
+        print(f"Objeto Pydantic listo: {datos_finales}")
+
+except FileNotFoundError:
+    print("Error: El archivo 'words.json' no existe.")
+
+except json.JSONDecodeError:
+    print("Error: El archivo no es un JSON válido.")
+
+except ValidationError as e:
+    print(f"Error: El JSON es válido pero no se ajusta a la estructura de SolSopa.")
+    print(f"Detalles del fallo: {e.json()}")
+
+except Exception as e:
+    print(f"⚠️ Error inesperado: {e}")

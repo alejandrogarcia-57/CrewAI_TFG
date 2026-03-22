@@ -1,6 +1,8 @@
 
 import random
 import string
+import os 
+import json
 from crewai.tools import tool
 
 
@@ -48,6 +50,29 @@ def crear_cuadricula(palabras: str) -> str:
                 grid[r][c] = random.choice(string.ascii_uppercase)
 
     return "\n".join([" ".join(row) for row in grid])
+
+
+@tool("serializador_sopa")
+def serializador_sopa(tema: str, palabras_comas: str) -> str:
+    """
+    Recibe el tema y una lista de palabras separadas por comas.
+    Genera un archivo JSON perfectamente estructurado en la carpeta output.
+    """
+    
+    lista_palabras = [p.strip().upper() for p in palabras_comas.split(",") if len(p.strip()) > 0]
+    
+    
+    datos = {
+        "tema": tema.strip(),
+        "palabras": lista_palabras
+    }
+    
+    
+    ruta = os.path.join("output", "words.json")
+    with open(ruta, "w", encoding="utf-8") as f:
+        json.dump(datos, f, indent=4, ensure_ascii=False)
+        
+    return f"ÉXITO: Archivo guardado correctamente en {ruta} con {len(lista_palabras)} palabras."
 
 
 
