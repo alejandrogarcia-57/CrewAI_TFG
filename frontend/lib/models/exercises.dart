@@ -1,16 +1,19 @@
 class Exercise {
   final String tema;
-  final List<String> palabras;
+  final String palabras;
+  final String cuadricula;
 
   Exercise({
     required this.tema,
     required this.palabras,
+    required this.cuadricula,
   });   
 
   factory Exercise.fromJson(Map<String, dynamic> json){
     return Exercise(
       tema: json['tema'],
-      palabras: List<String>.from(json['palabras']),
+      palabras: json['palabras'],
+      cuadricula: json['cuadricula'],
     );
   }
 
