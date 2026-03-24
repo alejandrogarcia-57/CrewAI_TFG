@@ -3,6 +3,7 @@ import random
 import string
 import os 
 import json
+import re
 from crewai.tools import tool
 
 
@@ -52,6 +53,54 @@ def crear_cuadricula(palabras: str) -> str:
     return "\n".join([" ".join(row) for row in grid])
 
 
+@tool("generador_numeros")
+def generador_numeros(limites_input):
+    """
+    Genera 24 números entre 0 y 250 que esten dentro de los 3 rangos. 
+    Acepta un string como "150,230" o un diccionario como [150,230].
+
+    """
+    try:
+        if isinstance(limites_input, str):
+            limites = [int(n.strip()) for n in limites_input.split(',')]
+
+        elif isinstance(limites_input, list):
+            limites = limites_input
+        
+        else:
+            raise ValueError("Formato de límites no reconocido")
+        
+        lim_inf, lim_sup = sorted(limites)
+        
+        universo = [n for n in range(0, 251) if n not in [lim_inf, lim_sup]]
+        nums_rand = random.sample(universo, 24)
+        
+
+        rango1 = [n for n in nums_rand if n < lim_inf]
+        rango2 = [n for n in nums_rand if lim_inf <= n <= lim_sup]
+        rango3 = [n for n in nums_rand if n > lim_sup]
+        
+
+        resultado = {
+            "configuracion": {
+                "limite_inferior": lim_inf,
+                "limite_superior": lim_sup,
+                "total_numeros": len(nums_rand)
+            },
+            "ejercicio": {
+                "rango1": sorted(rango1),
+                "rango2": sorted(rango2),
+                "rango3": sorted(rango3)
+            }
+        }
+        
+        return f"RESULTADO_TOOL_JSON:\n{json.dumps(resultado, indent=4)}"
+
+    except Exception as e:
+        return f"Error técnico en la tool: {str(e)}"
+    
+
+
 @tool("serializador_sopa")
 def serializador_sopa(tema: str, palabras_comas: str) -> str:
     """
@@ -75,6 +124,35 @@ def serializador_sopa(tema: str, palabras_comas: str) -> str:
     return f"ÉXITO: Archivo guardado correctamente en {ruta} con {len(lista_palabras)} palabras."
 
 
+
+@tool("serializador_rngnum")
+def serializador_rngnum(contenido_sucio) -> str:
+
+    """
+    Toma el 'contenido_sucio' del fichero 'numeros_a_ordenar.json'
+    (como ```json) y conviertelo en un formato puro y serializado.
+
+    """
+
+    try:
+
+        limpio = re.sub(r'```json|```', '', contenido_sucio).strip()
+        
+
+        datos = json.loads(limpio)
+        
+        ruta = os.path.join("output", "numeros_a_ordenar.json")
+        if not os.path.exists("output"): os.makedirs("output")
+        
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=4, ensure_ascii=False)
+            
+        return f"ÉXITO: El juego ha sido serializado correctamente en {ruta}."
+    
+    except json.JSONDecodeError:
+        return "ERROR: El contenido no tiene un formato JSON válido para serializar."
+    except Exception as e:
+        return f"ERROR inesperado: {str(e)}"
 
 
     

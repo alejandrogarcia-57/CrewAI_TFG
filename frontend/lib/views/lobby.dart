@@ -75,6 +75,13 @@ class _HomePageState extends State<HomePage> {
                       return Container(
                         height: size,
                         width: size,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
+                          ]
+                        ),
                         child: GridView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.all(10),

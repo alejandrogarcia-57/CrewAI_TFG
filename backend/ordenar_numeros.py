@@ -1,4 +1,3 @@
-from flask import Flask
 from crewai import Agent, Task, Crew, Process, LLM
 from langchain_ollama import OllamaLLM
 import os
@@ -6,57 +5,81 @@ from pydantic import BaseModel
 from typing import List
 import tools
 
-app = Flask(__name__)
+
+class RangoNumeros(BaseModel):
+    configuracion: dict[str, int]
+    ejercicio: dict[str, List[int]]
 
 os.environ["OPENAI_API_KEY"] = "NA"
 
-llm_used = LLM(model="ollama/llama3.1", base_url="http://localhost:11434", api_key="NA")
+llm_used = LLM(model="ollama/gemma3:4b", base_url="http://localhost:11434", api_key="NA")
 
-
-class Numeros(BaseModel):
-    numeros: List[int]
 
 generador_rng = Agent(
-    role='Generador Experto de rangos numéricos',
+    role='Generador de Límites',
     goal='Generar 2 números enteros y que esten entre 0 y 250.',
-    backstory='Eres un experto en estableciendo rangos numéricos.',
+    backstory='Eres un calculador preciso. Tu única misión es dar dos números separados por coma.',
     llm=llm_used,
+    allow_delegation=False,
     verbose=True   
 )
 
 generador_nums = Agent(
     role='Generador Experto de números a ordenar',
-    goal='Generar 24 números para ordenarlos dentro de los tres rangos numéricos.',
-    backstory='Eres un experto en generar números enteros que cumplan con ciertas condiciones.',
+    goal='Pasar los límites a la herramienta generador_numeros.',
+    backstory='No generas números tú mismo. Solo copias los límites y usas la herramienta.',
     llm=llm_used,
+    tools=[tools.generador_numeros],
+    allow_delegation=False,
+    max_iter=3,
     verbose=True   
+)
+
+formateador_json = Agent(
+    role="Experto en estructuras tipo JSON",
+    goal="Tomar las palabras generadas y usar la herramienta para guardarlas en JSON",
+    backstory="Eres un experto en serialización de datos a formato JSON.",
+    llm=llm_used,
+    tools=[tools.serializador_rngnum],
+    allow_delegation=False,
+    max_iter=3,
+    verbose=True
 )
 
 tarea_rng = Task(
     name='Tarea de generación de rangos',
-    description='Has de generar 2 números enteros que esten entre 0 y 250. Además es necesario que esos dos números que vayas a generar ' \
-    'se encuentren a una distancia superior a 70 unidades.',
-    expected_output="La salida sera unicamente un JSON que tenga como atributos 'numeros' que tenga un array con los dos números elegidos.",
-    output_json=Numeros,
-    output_file='output/numeros_f.json',
+    description='Has de generar 2 números entre 0 y 250 con una distancia mayor a 70 unidades. Por ejemplo: "70, 160"',
+    expected_output="Dos numeros separados por una coma.",
     agent=generador_rng,
 )
 
 tarea_nums = Task(
     name='Tarea de generación de números',
-    description='Has de generar 24 números enteros entre el 0 y el 250.',
-    expected_output="La salida sera un JSON que tenga como atributo 'numeros' con los números obtenidos.",
+    description='Toma los números de la tarea anterior y úsalos como input en "generador_numeros".',
+    expected_output="El JSON que devuelve la herramienta 'generador_numeros'",
     context=[tarea_rng],
-    output_json=Numeros,
     output_file='output/numeros_a_ordenar.json',
     agent=generador_nums,
 )
 
+
+tarea_serializar = Task(
+    name='Serialización de datos',
+    description=
+        "Toma la salida de la 'tarea_nums' y serializa el contenido del JSON" \
+        "utilizando la herramienta 'serializador_rngnum'",
+    expected_output="Confirmación de que el JSON ha sido guardado.",
+    context=[tarea_nums],
+    agent=formateador_json,   
+)
+
+
+
 ordenar_num = Crew(
-    agents=[generador_rng, generador_nums],
-    tasks=[tarea_rng,tarea_nums],
+    agents=[generador_rng, generador_nums, formateador_json],
+    tasks=[tarea_rng, tarea_nums, tarea_serializar],
     process=Process.sequential,
-    verbose=2
+    verbose=True
 )
 
 print("### Iniciando proceso ###")

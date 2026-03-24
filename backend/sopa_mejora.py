@@ -101,9 +101,6 @@ sopa_letras = Crew(
 print("### Iniciando proceso ###")
 resultado = sopa_letras.kickoff(inputs={'tema': 'seres de la naturaleza'})
 
-datos_netos = resultado.json_dict
-print("Datos convertidos a JSON")
-print(datos_netos)
 
 try:
 
