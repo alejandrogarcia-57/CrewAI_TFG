@@ -1,0 +1,24 @@
+{
+  "operaciones": [
+    {
+      "operacion": "18-3",
+      "resultado": 15
+    },
+    {
+      "operacion": "25+10",
+      "resultado": 35
+    },
+    {
+      "operacion": "7*5",
+      "resultado": 35
+    },
+    {
+      "operacion": "32-9",
+      "resultado": 23
+    },
+    {
+      "operacion": "12+8",
+      "resultado": 20
+    }
+  ]
+}

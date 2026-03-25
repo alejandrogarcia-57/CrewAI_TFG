@@ -37,3 +37,21 @@ def empaquetar_sopa():
     
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
+
+
+def empaquetar_operacion():
+    try:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        ruta_op = os.path.join(BASE_DIR, "output", "operaciones.json")
+        if not os.path.exists:
+            return "Error: El archivo operaciones.json no existe. Por favor, genera las operaciones primero."
+        
+        with open(ruta_op, "r", encoding="utf-8") as f:
+            datos = json.load(f)
+
+        print(datos)
+        return datos
+        
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}

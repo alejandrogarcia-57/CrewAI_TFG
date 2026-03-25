@@ -1,16 +1,16 @@
-class Exercise {
+class Sopa {
   final String tema;
   final String palabras;
   final String cuadricula;
 
-  Exercise({
+  Sopa({
     required this.tema,
     required this.palabras,
     required this.cuadricula,
   });   
 
-  factory Exercise.fromJson(Map<String, dynamic> json){
-    return Exercise(
+  factory Sopa.fromJson(Map<String, dynamic> json){
+    return Sopa(
       tema: json['tema'],
       palabras: json['palabras'],
       cuadricula: json['cuadricula'],

@@ -1,1 +1,11 @@
-Árbol, Flor, Río, Mar, Oso, Ave
+{
+    "tema": "seres de la naturaleza",
+    "palabras": [
+        "ÁRBOL",
+        "FLOR",
+        "RÍO",
+        "OSO",
+        "AVE",
+        "MAR"
+    ]
+}

@@ -7,12 +7,15 @@ import tools
 
 
 class RangoNumeros(BaseModel):
-    configuracion: dict[str, int]
-    ejercicio: dict[str, List[int]]
+    configuracion: dict
+    ejercicio: dict
 
 os.environ["OPENAI_API_KEY"] = "NA"
 
 llm_used = LLM(model="ollama/gemma3:4b", base_url="http://localhost:11434", api_key="NA")
+
+
+#-------AGENTES-------
 
 
 generador_rng = Agent(
@@ -31,20 +34,13 @@ generador_nums = Agent(
     llm=llm_used,
     tools=[tools.generador_numeros],
     allow_delegation=False,
+    allow_code_execution=False,
     max_iter=3,
     verbose=True   
 )
 
-formateador_json = Agent(
-    role="Experto en estructuras tipo JSON",
-    goal="Tomar las palabras generadas y usar la herramienta para guardarlas en JSON",
-    backstory="Eres un experto en serialización de datos a formato JSON.",
-    llm=llm_used,
-    tools=[tools.serializador_rngnum],
-    allow_delegation=False,
-    max_iter=3,
-    verbose=True
-)
+#-------TAREAS-------
+
 
 tarea_rng = Task(
     name='Tarea de generación de rangos',
@@ -55,29 +51,21 @@ tarea_rng = Task(
 
 tarea_nums = Task(
     name='Tarea de generación de números',
-    description='Toma los números de la tarea anterior y úsalos como input en "generador_numeros".',
-    expected_output="El JSON que devuelve la herramienta 'generador_numeros'",
+    description="Toma los dos números de la tarea anterior. "
+        "Llama a la herramienta 'generador_numeros' pasando UNICAMENTE los números "
+        "separados por coma como argumento. "
+        "EJEMPLO DE ARGUMENTO: '10,200'",
+    expected_output="El JSON que generado por la herramienta 'generador_numeros'",
     context=[tarea_rng],
+    output_json=RangoNumeros,
     output_file='output/numeros_a_ordenar.json',
     agent=generador_nums,
 )
 
 
-tarea_serializar = Task(
-    name='Serialización de datos',
-    description=
-        "Toma la salida de la 'tarea_nums' y serializa el contenido del JSON" \
-        "utilizando la herramienta 'serializador_rngnum'",
-    expected_output="Confirmación de que el JSON ha sido guardado.",
-    context=[tarea_nums],
-    agent=formateador_json,   
-)
-
-
-
 ordenar_num = Crew(
-    agents=[generador_rng, generador_nums, formateador_json],
-    tasks=[tarea_rng, tarea_nums, tarea_serializar],
+    agents=[generador_rng, generador_nums],
+    tasks=[tarea_rng, tarea_nums],
     process=Process.sequential,
     verbose=True
 )
