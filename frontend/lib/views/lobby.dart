@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:frontend/widgets/opera_fut_builder.dart';
+import 'package:frontend/widgets/sopa_fut_builder.dart';
 import 'package:frontend/models/operaciones.dart';
-import 'package:frontend/models/sopa.dart';
-import 'package:frontend/widgets/ejercicios_builders/sopa_fut_builder.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http; 
+import 'package:frontend/service/api_service.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,129 +12,23 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-Future<Sopa> fetchSopa() async {
-  //Para el emulador Android: 10.0.2.2
-  //----------------------------------
-  //Para pruebas en el ordenandor en local: 127.0.0.1
-  final response = await http.get(Uri.parse('http://127.0.0.1:8000/obtener-sopa'));
-
-  if (response.statusCode == 200) {
-    return Sopa.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Error al conectar con el backend');
-  }  
-  
-}
-
-Future<Operacion> fetchOperacion() async {
-
-  final response = await http.get(Uri.parse('http://127.0.0.1:8000/obtener-operaciones'));
-
-  if (response.statusCode == 200) {
-    return Operacion.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Error al conectar con el backend');
-  }
-}
 
 class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState(){
+    super.initState();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Implementación Sopa de letras"),
+        title: Text("Implementación Operaciones"),
         backgroundColor: Color.fromARGB(221, 251, 44, 151),
         ),
-      body: FutureBuilder(
-        future: fetchSopa(), 
-        builder: (context, snapshot){
-
-          if(snapshot.hasData){
-            final sopa = snapshot.data!;
-
-            List<String> letras = sopa.cuadricula.trim().split(RegExp(r'\s+'));
-
-            return Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "TEMA: ${sopa.tema}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                       
-                    ),
-                    LayoutBuilder(builder: (context, constraints) {
-                      double size = constraints.maxWidth < 500 ? constraints.maxWidth * 0.9 : 500;
-                      return Container(
-                        height: size,
-                        width: size,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
-                          ]
-                        ),
-                        child: GridView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(10),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 10,
-                            mainAxisSpacing: 2,
-                            crossAxisSpacing: 2,
-                          ),
-                          itemCount: letras.length,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: EdgeInsets.all(4.0),
-                              decoration: BoxDecoration(
-                                color: Colors.blueAccent,
-                                border: Border.all(color: Colors.blue),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),    
-                              child: Center(
-                                child: Text(letras[index], style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    }),
-                    Padding(
-                      padding:const EdgeInsets.all(16.0),
-                      child: Text("Busca: ${sopa.palabras}"),
-                    ),
-                  ],
-                ),
-              ),
-            );               
-          } else if(snapshot.hasError){
-
-              return Center(child: Text(
-              "Error: ${snapshot.error}",
-              style: TextStyle(
-                color: Color.fromARGB(255, 147, 4, 4)
-              ),
-              )); 
-               
-          } else {
-
-              return Center(child: CircularProgressIndicator(
-                color: Color.fromARGB(221, 251, 44, 151),
-            ));
-
-          }
-
-
-          
-
-        }
-        ),
+      body: OperaFutBuilder()
       );
   }
 

@@ -54,7 +54,7 @@ def crear_cuadricula(palabras: str) -> str:
 
 
 @tool("generador_numeros")
-def generador_numeros(limites_input) -> str:
+def generador_numeros(limites_input: str) -> str:
     """
     Genera 24 números entre 0 y 250 que esten dentro de los 3 rangos. 
     Acepta solo un string como "150,230".
@@ -152,4 +152,58 @@ def serializador_rngnum(contenido_sucio) -> str:
     except Exception as e:
         return f"Error serializando: {str(e)}"
 
+
+
+
+@tool("preparador_juego_memoria")
+def preparador_juego_memoria(json_sucio: str) -> str:
+    """
+    Limpia el Markdown de un JSON de emojis y crea un nuevo JSON serializado
+    con los pares identificados y barajados.
+    """
+    try:
+
+        match = re.search(r'\{.*\}', json_sucio, re.DOTALL)
+        if not match:
+            return "Error: No se encontró un JSON válido."
+        
+        datos = json.loads(match.group(0))
+        lista_emojis = datos.get("pares", [])
+        
+        
+        cartas = []
+        
+        import string
+        abecedario = list(string.ascii_uppercase)
+        
+        
+        for i in range(0, len(lista_emojis), 2):
+            emoji = lista_emojis[i]
+            letra_par = abecedario[i // 2] if (i // 2) < len(abecedario) else f"P{i//2}"
+            
+            
+            cartas.append({
+                "id": i + 1,
+                "contenido": emoji,
+                "par_id": letra_par
+            })
+            
+            cartas.append({
+                "id": i + 2,
+                "contenido": emoji,
+                "par_id": letra_par
+            })
+
+        
+        random.shuffle(cartas)
+        
+        
+        for index, carta in enumerate(cartas):
+            carta["id"] = index + 1
+
+        resultado_final = {"cartas": cartas}
+        return json.dumps(resultado_final, ensure_ascii=False, indent=4)
+
+    except Exception as e:
+        return f"Error procesando el juego: {str(e)}"
     

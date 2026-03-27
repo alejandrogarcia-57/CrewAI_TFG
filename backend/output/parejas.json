@@ -1,0 +1,84 @@
+{
+    "cartas": [
+        {
+            "id": 1,
+            "contenido": "📱",
+            "par_id": "B"
+        },
+        {
+            "id": 2,
+            "contenido": "💾",
+            "par_id": "E"
+        },
+        {
+            "id": 3,
+            "contenido": "💡",
+            "par_id": "H"
+        },
+        {
+            "id": 4,
+            "contenido": "📡",
+            "par_id": "G"
+        },
+        {
+            "id": 5,
+            "contenido": "⌨️",
+            "par_id": "C"
+        },
+        {
+            "id": 6,
+            "contenido": "⌨️",
+            "par_id": "C"
+        },
+        {
+            "id": 7,
+            "contenido": "📡",
+            "par_id": "G"
+        },
+        {
+            "id": 8,
+            "contenido": "💻",
+            "par_id": "A"
+        },
+        {
+            "id": 9,
+            "contenido": "🖱️",
+            "par_id": "D"
+        },
+        {
+            "id": 10,
+            "contenido": "🖱️",
+            "par_id": "D"
+        },
+        {
+            "id": 11,
+            "contenido": "📱",
+            "par_id": "B"
+        },
+        {
+            "id": 12,
+            "contenido": "🖨",
+            "par_id": "F"
+        },
+        {
+            "id": 13,
+            "contenido": "💻",
+            "par_id": "A"
+        },
+        {
+            "id": 14,
+            "contenido": "💾",
+            "par_id": "E"
+        },
+        {
+            "id": 15,
+            "contenido": "🖨",
+            "par_id": "F"
+        },
+        {
+            "id": 16,
+            "contenido": "💡",
+            "par_id": "H"
+        }
+    ]
+}
