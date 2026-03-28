@@ -55,3 +55,21 @@ def empaquetar_operacion():
         
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
+    
+
+def empaquetar_parejas():
+    try:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        ruta_pares = os.path.join(BASE_DIR, "output", "parejas.json")
+        if not os.path.exists:
+            return "Error: El archivo parejas.json no existe. Por favor, genera las parejas primero."
+        
+        with open(ruta_pares, "r", encoding="utf-8") as f:
+            datos = json.load(f)
+        
+        print(datos)
+        return datos
+    
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}
+    

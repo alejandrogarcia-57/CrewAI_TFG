@@ -2,83 +2,83 @@
     "cartas": [
         {
             "id": 1,
-            "contenido": "📱",
-            "par_id": "B"
+            "contenido": "😭",
+            "par_id": "C"
         },
         {
             "id": 2,
-            "contenido": "💾",
+            "contenido": "❤️",
             "par_id": "E"
         },
         {
             "id": 3,
-            "contenido": "💡",
+            "contenido": "😊",
             "par_id": "H"
         },
         {
             "id": 4,
-            "contenido": "📡",
-            "par_id": "G"
+            "contenido": "😠",
+            "par_id": "B"
         },
         {
             "id": 5,
-            "contenido": "⌨️",
-            "par_id": "C"
+            "contenido": "🤔",
+            "par_id": "G"
         },
         {
             "id": 6,
-            "contenido": "⌨️",
+            "contenido": "😭",
             "par_id": "C"
         },
         {
             "id": 7,
-            "contenido": "📡",
-            "par_id": "G"
+            "contenido": "💔",
+            "par_id": "F"
         },
         {
             "id": 8,
-            "contenido": "💻",
-            "par_id": "A"
+            "contenido": "🤩",
+            "par_id": "D"
         },
         {
             "id": 9,
-            "contenido": "🖱️",
-            "par_id": "D"
+            "contenido": "🤔",
+            "par_id": "G"
         },
         {
             "id": 10,
-            "contenido": "🖱️",
-            "par_id": "D"
+            "contenido": "💔",
+            "par_id": "F"
         },
         {
             "id": 11,
-            "contenido": "📱",
-            "par_id": "B"
-        },
-        {
-            "id": 12,
-            "contenido": "🖨",
-            "par_id": "F"
-        },
-        {
-            "id": 13,
-            "contenido": "💻",
+            "contenido": "😀",
             "par_id": "A"
         },
         {
+            "id": 12,
+            "contenido": "🤩",
+            "par_id": "D"
+        },
+        {
+            "id": 13,
+            "contenido": "😊",
+            "par_id": "H"
+        },
+        {
             "id": 14,
-            "contenido": "💾",
-            "par_id": "E"
+            "contenido": "😀",
+            "par_id": "A"
         },
         {
             "id": 15,
-            "contenido": "🖨",
-            "par_id": "F"
+            "contenido": "😠",
+            "par_id": "B"
         },
         {
             "id": 16,
-            "contenido": "💡",
-            "par_id": "H"
+            "contenido": "❤️",
+            "par_id": "E"
         }
     ]
 }

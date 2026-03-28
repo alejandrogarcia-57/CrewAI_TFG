@@ -42,7 +42,7 @@ agente_formateador = Agent(
 tarea_gen_pares = Task(
     name='Tarea de generación de parejas',
     description='Has de generar solo 8 parejas de emojis (16 emojis) distintos para el juego de encontrar las parejas con el mismo símbolo.' \
-    'La salida debe ser un JSON con el siguiente formato: {"pares": ["😀", "😀", "🐶", "🐶", ...]} sobre la temática {tema}',
+    'La salida debe ser un JSON con el siguiente formato: {"pares": ["😀", "😀", "🐶", "🐶", ...]} sobre la temática {tema}.',
     expected_output="Un JSON con el formato indicado en la descripción.",
     output_file='output/parejas.json',
     agent=generador_pares,   
@@ -65,4 +65,4 @@ parejas = Crew(
 )
 
 print("### Iniciando proceso ###")
-resultado = parejas.kickoff(inputs= {'tema':'tecnología'})
+resultado = parejas.kickoff(inputs= {'tema':'emociones'})

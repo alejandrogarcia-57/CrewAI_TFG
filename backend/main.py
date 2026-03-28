@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from packing import empaquetar_sopa, empaquetar_operacion
+from packing import *
 
 app = FastAPI()
 
@@ -24,6 +24,13 @@ async def get_operaciones():
     
     resultado = empaquetar_operacion()
 
+    return resultado
+
+@app.get("/obtener-parejas")
+async def get_parejas():
+
+    resultado = empaquetar_parejas()
+    
     return resultado
 
 if __name__ == "__main__":
