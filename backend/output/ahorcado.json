@@ -1,0 +1,9 @@
+{
+    "palabra": "PERRO",
+    "pistas": {
+        "1": "Es un animal doméstico popular.",
+        "2": "A menudo ladra y juega.",
+        "3": "Tiene cuatro patas y una cola."
+    },
+    "longitud": 5
+}

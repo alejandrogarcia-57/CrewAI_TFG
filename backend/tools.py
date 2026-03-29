@@ -207,3 +207,36 @@ def preparador_juego_memoria(json_sucio: str) -> str:
     except Exception as e:
         return f"Error procesando el juego: {str(e)}"
     
+
+
+@tool("serializador_ahorcado")
+def serializador_ahorcado(json_sucio: str) -> str:
+
+    """
+    Limpia el Markdown de un JSON con la palabra y sus pistas,
+    y crea un nuevo JSON serializado con la palabra y las pistas numeradas 
+    """
+
+    try:
+        match = re.search(r'\{.*\}', json_sucio, re.DOTALL)
+        if not match:
+            return "Error: No se encontró un JSON válido."
+        
+        datos = json.loads(match.group(0))
+
+        palabra = datos.get("palabra", "DESCONOCIDA").upper()
+        pistas_originales = datos.get("pistas", [])
+
+        pistas_numeradas = {str(i+1): pista for i, pista in enumerate(pistas_originales)}
+        
+        resultado = {
+            "palabra": palabra,
+            "pistas": pistas_numeradas,
+            "longitud": len(palabra)
+        }
+
+        return json.dumps(resultado, ensure_ascii=False, indent=4)
+    
+    except Exception as e:
+        return f"Error, el fichero facilitado no contiene la información necesaria: {str(e)}"
+    
