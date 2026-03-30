@@ -12,12 +12,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/obtener-sopa")
 async def get_sopa():
     
     resultado = empaquetar_sopa()
     
     return resultado
+
 
 @app.get("/obtener-operaciones")
 async def get_operaciones():
@@ -26,12 +28,22 @@ async def get_operaciones():
 
     return resultado
 
+
 @app.get("/obtener-parejas")
 async def get_parejas():
 
     resultado = empaquetar_parejas()
     
     return resultado
+
+
+@app.get("/obtener-ahorcado")
+async def get_ahorcados():
+
+    resultado = empaquetar_ahorcado()
+
+    return resultado
+
 
 if __name__ == "__main__":
     import uvicorn

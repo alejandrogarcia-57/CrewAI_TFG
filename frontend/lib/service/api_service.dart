@@ -37,4 +37,13 @@ class ApiService {
       throw Exception('Error al conectar con el backend');
     }
   }
+
+  Future<Ahorcado> fetchAhorcado() async {
+    final response = await http.get(Uri.parse('$baseUrl/obtener-ahorcado'));
+    if (response.statusCode == 200) {
+      return Ahorcado.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Error al conectar con el backend');
+    }
+  }
 }

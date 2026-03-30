@@ -72,4 +72,21 @@ def empaquetar_parejas():
     
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
+
+
+def empaquetar_ahorcado():
+    try:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        ruta_ahorcado = os.path.join(BASE_DIR, "output", "ahorcado.json")
+        if not os.path.exists:
+            return "Error: El archivo ahorcado.json no existe. Por favor, genera las palabras para el ahorcado primero."
+        
+        with open(ruta_ahorcado, "r", encoding="utf-8") as f:
+            datos = json.load(f)
+
+        print(datos)
+        return datos
+    
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}
     
