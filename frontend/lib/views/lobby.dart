@@ -9,12 +9,40 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
+  
 }
 
 
 class _HomePageState extends State<HomePage> {
 
-  int long_solucion = 0;
+  final List<String> abecedario = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+  List<String> letrasSeleccionadas = [];
+  int fallos = 0;
+  String get rutaFlor => 'assets/images/Efecto_flor/Flor_$fallos.png';
+  
+  
+
+  void verificarLetra(String letraPulsada, String palabra) {
+
+    String palabraUpper = palabra.toUpperCase();
+
+    if (letrasSeleccionadas.contains(letraPulsada)) return;
+
+    setState(() {
+
+      letrasSeleccionadas.add(letraPulsada);
+
+
+      if (!palabraUpper.contains(letraPulsada)) {
+        fallos++;
+        print("Letra incorrecta. Fallos: $fallos");
+
+      } else {
+        print("¡Bien hecho! La letra $letraPulsada está en la palabra.");
+      }
+      
+    });
+  }
 
   @override
   void initState(){
@@ -39,38 +67,83 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SizedBox(height: 30),
-                  Image.asset(
-                    'assets/images/Ordenador.png',
-                    height: 250,
-                    width: 350,
-                    fit: BoxFit.fill,
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 500),
+                    child: Image.asset(
+                      rutaFlor,
+                      key: ValueKey<int>(fallos),
+                      height: 200,
+                      width: 200,
+                      fit: BoxFit.fill,
+                    ),
                   ),
                   SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 8.0, 
-                      children: List.generate(ahorcado.longitud, (index) {
-                        return SizedBox(
-                          width: 40,
-                          child: TextField(
-                            keyboardType: TextInputType.text,
-                            textAlign: TextAlign.center,
-                            maxLength: 1,
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            decoration: InputDecoration(
-                              counterText: "",
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black, width: 2),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.pinkAccent, width: 3),
-                              ),
-                            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: ahorcado.palabra.toUpperCase().split('').map((char){
+                    bool revelada = letrasSeleccionadas.contains(char);
+
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        padding: const EdgeInsets.only(bottom: 5),
+                        width: 30, 
+                        decoration: const BoxDecoration(
+                         
+                          border: Border(
+                            bottom: BorderSide(width: 2, color: Colors.black),
                           ),
-                        );
-                      }),
+                        ),
+                        child: Text(
+                          revelada ? char : "",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24, 
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      );    
+                    }).toList(),
+                  ),
+                  SizedBox(height: 30),
+                  Flexible(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 600),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 9,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                        ), 
+                        itemCount: abecedario.length,
+                        itemBuilder: (context, index) {
+                          final letra = abecedario[index];
+                          final bool yaUsada = letrasSeleccionadas.contains(letra); 
+                          final bool esCorrecta = yaUsada && ahorcado.palabra.toUpperCase().contains(letra);  
+                          return GestureDetector(
+                            onTap: yaUsada ? null : () => verificarLetra(letra, ahorcado.palabra),  
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: !yaUsada ? Colors.white : (esCorrecta ? Colors.green : Colors.grey),
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.circular(8.0)
+                              ),
+                              child: Center(
+                                child: Text(
+                                  letra,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: esCorrecta ? Colors.white : (yaUsada ? Colors.black26 : Colors.black),
+                                  )
+                                )
+                              )
+                            )
+                          );                 
+                        },
+                      ),
                     ),
                   ),
                   SizedBox(height:50),
