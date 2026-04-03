@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/views/lobby.dart';
+import 'package:supabase/supabase.dart';
+import 'package:frontend/config/configurations.dart';
 
-void main() {
-  runApp(const MyApp());
+
+
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SupabaseClient(Configurations.supabaseUrl, Configurations.supabaseKey);
+  runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
