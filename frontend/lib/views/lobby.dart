@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/service/api_service.dart';
-import 'package:frontend/widgets/parejas_fut_builder.dart';
-import 'package:frontend/widgets/sopa_fut_builder.dart';
-import 'package:frontend/widgets/ahorcado_fut_builder.dart';
 import 'package:frontend/views/ahorcado_page.dart';
-
+import 'package:frontend/views/opera_page.dart';
+import 'package:frontend/views/parejas_page.dart';
+import 'package:frontend/views/sopa_page.dart';
+import 'package:frontend/widgets/exercise_card.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -17,6 +16,14 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
+
+
+  Map<String, Map<String, dynamic>> configEjercicios = {
+  'parejas': {'color': Color.fromARGB(255, 174, 25, 25), 'page': const ParejasPage()},
+  'sopa': {'color': Color.fromARGB(255, 236, 205, 0), 'page': const SopaPage()},
+  'operacion': {'color': Color.fromARGB(255, 48, 154, 180), 'page': const OperaPage()},
+  'ahorcado': {'color': Color.fromARGB(255, 171, 82, 203), 'page': const AhorcadoPage()},
+};
 
   
 
@@ -33,45 +40,68 @@ class _HomePageState extends State<HomePage> {
         title: Text("Selección ejercicios"),
         backgroundColor: Color.fromARGB(221, 251, 44, 151),
         ),
-      body: Padding(
-        padding: EdgeInsetsGeometry.symmetric(vertical: 20.0, horizontal: 12.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 2,
-                      )
-                    ),
-                    child: ListTile(
-                      title: Text("Exercise $index: Name"),
-                      subtitle: Text("Description of exercise $index"),
-                      
-                      onTap: () {
-                        Navigator.push(
-                          context, 
-                          MaterialPageRoute(builder: (context) => AhorcadoPage())
-                        );
-                      },
-                    ),
-                  );                
-                }, 
+      body: Row(
+        children: [
+
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: ListView.builder(
+                  itemCount: 20,
+                  itemBuilder: (context, index) {
+                    List<String> tipos = ['parejas', 'sopa', 'operacion', 'ahorcado'];
+                    String tipoActual = tipos[index % 4];
+                                
+                    return ExerciseCard(
+                      index: index, 
+                      tipo: tipoActual, 
+                      colorBase: configEjercicios[tipoActual]!['color'], 
+                      pagina: configEjercicios[tipoActual]!['page']
+                    );
+                  },
+                ),
               ),
             ),
-          ],
-        )
+          ),
+
+
+          Expanded(
+          flex: 1,
+          child: Container(
+            margin: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.auto_graph, size: 80, color: Colors.blueGrey),
+                SizedBox(height: 20),
+                Text(
+                  "Panel de Progreso",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(
+                    "Rendimiento actual del niño",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+
+        ]
       )
-      
-      );
+    );
   }
 
 }

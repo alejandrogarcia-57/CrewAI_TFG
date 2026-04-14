@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/ahorcado_fut_builder.dart';
 
+
 class AhorcadoPage extends StatefulWidget {
   const AhorcadoPage({super.key});
 

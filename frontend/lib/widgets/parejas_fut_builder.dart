@@ -15,9 +15,15 @@ class _ParejasFutBuilderState extends State<ParejasFutBuilder> {
   late Future<Parejas> _ejercicioParejas;
 
   @override
+  void initState() {
+    super.initState();
+    _ejercicioParejas = ApiService().fetchParejas();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Parejas>(
-      future: ApiService().fetchParejas(), 
+      future: _ejercicioParejas, 
       builder: (context, snapshot){
         if(snapshot.hasData){
           return ParejasBuilder(parejas: snapshot.data!);

@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/service/auth/auth_gate.dart';
 import 'package:frontend/views/lobby.dart';
-import 'package:supabase/supabase.dart';
+import 'package:frontend/views/login.dart';
+import 'package:frontend/views/signin.dart';
+import 'package:frontend/views/usuarios.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:frontend/config/configurations.dart';
-
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 Future<void> main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
-  SupabaseClient(Configurations.supabaseUrl, Configurations.supabaseKey);
+  await dotenv.load(fileName: ".env");
+  await Supabase.initialize(
+    url: Configurations.supabaseUrl,
+    anonKey: Configurations.supabaseKey,
+  );
   runApp(MyApp());
 }
 
@@ -24,7 +32,7 @@ class MyApp extends StatelessWidget {
       title: 'CrewAI_TFG',
       theme: ThemeData(
       ),
-      home: HomePage(),
+      home: AuthGate(),
     );
   }
 }
