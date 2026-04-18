@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/ahorcado.dart';
 
@@ -16,10 +17,37 @@ class _AhorcadoBuilderState extends State<AhorcadoBuilder> {
   final List<String> abecedario = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
   List<String> letrasSeleccionadas = [];
   int fallos = 0;
+  int pistasUsadas = 0;
+  bool juegoTerminado = false;
+
+  int segundos = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        segundos++;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   String get rutaFlor => 'assets/images/Efecto_flor/Flor_$fallos.png';
 
   
   void verificarLetra(String letraPulsada, String palabra) {
+    if (juegoTerminado || letrasSeleccionadas.contains(letraPulsada)) return;
 
     String palabraUpper = palabra.toUpperCase();
 
@@ -28,17 +56,72 @@ class _AhorcadoBuilderState extends State<AhorcadoBuilder> {
     setState(() {
 
       letrasSeleccionadas.add(letraPulsada);
-
-
       if (!palabraUpper.contains(letraPulsada)) {
         fallos++;
         print("Letra incorrecta. Fallos: $fallos");
+      } 
 
-      } else {
-        print("¡Bien hecho! La letra $letraPulsada está en la palabra.");
-      }
-      
     });
+    _reprobarEstadoJuego();
+
+  }
+
+  void _reprobarEstadoJuego() {
+    String palabra = widget.ahorcado.palabra.toUpperCase();
+    bool todasReveladas = palabra.split('').every((char) => letrasSeleccionadas.contains(char));
+
+    if (todasReveladas) {
+      _finalizarJuego(true);
+    } else if (fallos >= 5) { 
+      _finalizarJuego(false);
+    }
+  }
+
+  void _finalizarJuego(bool ganado){
+    _timer?.cancel();
+    setState(() => juegoTerminado = true);
+
+    showDialog(
+      context: context, 
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(ganado ? "¡Felicidades!" : "Has perdido"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(ganado ? "Has ganado el juego" : "La palabra era: ${widget.ahorcado.palabra}"),
+            SizedBox(height: 10),
+            Text("Tiempo total: ${_formatTime(segundos)}"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst), // Al lobby
+            child: const Text("OK"),
+          )
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(int s) {
+    int min = s ~/ 60;
+    int sec = s % 60;
+    return '${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}';
+  }
+
+  void _usarPista() {
+    if (pistasUsadas < 3) {
+      setState(() {
+        pistasUsadas++;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Pista $pistasUsadas: ${widget.ahorcado.pistas[pistasUsadas - 1]}"),
+          backgroundColor: Colors.blueAccent,
+        ),
+      );
+    }
   }
 
   @override
@@ -47,7 +130,40 @@ class _AhorcadoBuilderState extends State<AhorcadoBuilder> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.blueGrey.withValues(alpha:0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.blueGrey)
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.timer, color: Colors.blueGrey),
+                              SizedBox(width:8),
+                              Text(
+                                _formatTime(segundos), 
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey)
+                              )
+                            ],
+                          )
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: (pistasUsadas < 3 && !juegoTerminado) ? _usarPista : null,
+                          icon: const Icon(Icons.help_outline),
+                          label: Text("Pista (${3 - pistasUsadas})"),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10),
                   AnimatedSwitcher(
                     duration: Duration(milliseconds: 500),
                     child: Image.asset(
@@ -59,31 +175,22 @@ class _AhorcadoBuilderState extends State<AhorcadoBuilder> {
                     ),
                   ),
                   SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: widget.ahorcado.palabra.toUpperCase().split('').map((char){
-                    bool revelada = letrasSeleccionadas.contains(char);
-
+                  Wrap( 
+                    alignment: WrapAlignment.center,
+                    children: widget.ahorcado.palabra.toUpperCase().split('').map((char) {
+                      bool revelada = letrasSeleccionadas.contains(char);
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        padding: const EdgeInsets.only(bottom: 5),
-                        width: 30, 
+                        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        width: 30,
                         decoration: const BoxDecoration(
-                         
-                          border: Border(
-                            bottom: BorderSide(width: 2, color: Colors.black),
-                          ),
+                          border: Border(bottom: BorderSide(width: 2, color: Colors.black)),
                         ),
                         child: Text(
                           revelada ? char : "",
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24, 
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                      );    
+                      );
                     }).toList(),
                   ),
                   SizedBox(height: 30),
